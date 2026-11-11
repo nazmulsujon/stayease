@@ -1,15 +1,10 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 import { Container } from "@/components/shared/container";
 import { Logo } from "@/components/shared/logo";
+import { HeaderAccount, HeaderAccountSkeleton } from "./header-account";
 import { MainNav } from "./main-nav";
-import { MobileNav } from "./mobile-nav";
 
-/**
- * Public site header.
- * The account buttons are static for now; Phase 2 (Authentication) will
- * replace them with a user menu when a customer or admin is logged in.
- */
+/** Public site header. The account area streams in once the session is read. */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
@@ -18,17 +13,9 @@ export function SiteHeader() {
           <Logo />
           <MainNav className="hidden md:flex" />
         </div>
-        <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost">
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">Create account</Link>
-          </Button>
-        </div>
-        <div className="md:hidden">
-          <MobileNav />
-        </div>
+        <Suspense fallback={<HeaderAccountSkeleton />}>
+          <HeaderAccount />
+        </Suspense>
       </Container>
     </header>
   );

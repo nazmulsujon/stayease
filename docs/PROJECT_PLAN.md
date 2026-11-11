@@ -368,6 +368,30 @@ Each requirement has an ID for traceability in design, testing and the final rep
 
 **Why session cookie + JWT instead of a library like NextAuth?** A custom implementation is small (about 100 lines), has no hidden behaviour, and lets you clearly explain how authentication works during the viva. That is valuable for an academic project.
 
+### 11.1 Authentication Design (implemented in Phase 2)
+
+Authentication uses two layers of checks:
+
+| Layer | File | What it checks | Purpose |
+|---|---|---|---|
+| 1. Proxy (optimistic) | `src/proxy.ts` | JWT signature, expiry and role, **without** a database call | Fast early redirect: guests go to `/login?next=…`, customers are kept out of `/admin`, admins are kept out of customer pages |
+| 2. Data Access Layer (authoritative) | `src/lib/auth/dal.ts` | Token **and** the user in MongoDB (exists, not blocked, current role) | Real security boundary. Every protected page, Server Action and Route Handler calls `requireUser()` / `requireRole()` / `authorize()` |
+
+- **Token:** HS256 JWT containing only the user id and role (no personal data), signed with `JWT_SECRET`, with a 7-day expiry by default.
+- **Cookie:** `stayease_session`, set as `HttpOnly`, `SameSite=Lax`, `Secure` in production, `Path=/`. JavaScript in the browser cannot read it.
+- **Immediate revocation:** the DAL checks the database on every request. Blocking a user or changing their role takes effect immediately, even while their token is still valid.
+- **Login security:**
+  - Wrong password and unknown email return the same message.
+  - bcrypt runs even for unknown emails, so response time does not reveal which emails are registered.
+  - The "blocked" message is shown only after a correct password.
+- **Safe redirects:** the `?next=` parameter accepts only same-site relative paths (prevents open redirects). A customer can never be redirected into `/admin`.
+- **Validation rules:**
+  - Name: 2–60 characters.
+  - Email: valid format, stored in lowercase.
+  - Phone: Bangladeshi mobile number, stored as `01XXXXXXXXX`.
+  - Password: 8–72 characters, at least one letter and one number. The 72-character limit is bcrypt's maximum.
+- **Admin accounts:** created only through `npm run seed:admin` (reads `ADMIN_*` from `.env.local`). The script can be run more than once safely, and `--reset-password` sets the password again.
+
 ---
 
 ## 12. Database Overview
@@ -572,8 +596,9 @@ The lock is **per room**, not per room type or global. Bookings for different ro
 | Phase | Status |
 |---|---|
 | 1. Setup | ✅ Completed and verified (11 Nov 2026) |
-| 2. Authentication | ⏳ Next |
-| 3–7 | Not started |
+| 2. Authentication | ✅ Completed and verified (11 Nov 2026): FR-AUTH-01 to FR-AUTH-08. FR-AUTH-09 (profile edit / password change) is a *Should Have* item and is scheduled for Phase 6. |
+| 3. Room Catalogue | ⏳ Next |
+| 4–7 | Not started |
 
 ---
 
@@ -583,6 +608,7 @@ The lock is **per room**, not per room type or global. Bookings for different ro
 |---|---|---|
 | 1.0 | 11 Nov 2026 | Initial plan, approved by supervisor. |
 | 1.1 | 11 Nov 2026 | Supervisor requirements added: transaction + room-level locking (new §12.5, `Room.lockVersion` field, FR-BOOK-05 updated); Cancelled bookings explicitly non-blocking (FR-AVAIL-05); new FR-AVAIL-06 (maintenance/inactive rooms never available); FR-BOOK-04 clarified; date validation on frontend **and** backend (FR-AVAIL-02); payment status admin-only (FR-ADM-07). Phase 1 decisions recorded: Next.js 16 (`proxy.ts` replaces `middleware.ts`, FR-AUTH-07), self-hosted Geist font, Vitest + mongodb-memory-server testing, `npm run db:local` local replica set. |
+| 1.2 | 11 Nov 2026 | Phase 2 completed. Added §11.1 Authentication Design. Phone numbers are Bangladeshi mobile numbers (`01XXXXXXXXX`). Password policy: 8–72 characters with a letter and a number. Login and registration pages redirect users who are already logged in. FR-AUTH-09 moved to Phase 6 (Should Have). Admin seed script added (`npm run seed:admin`). |
 
 ---
 
