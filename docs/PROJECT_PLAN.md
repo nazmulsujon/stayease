@@ -7,7 +7,7 @@
 | Booking Domain | Hotel Room Reservation |
 | Working Product Name | **StayEase** (fictional hotel) |
 | Project Type | Undergraduate CSE Software Development Project |
-| Document Version | 1.1 (Approved; updated after Phase 1, see Change Log) |
+| Document Version | 1.4 (All seven phases completed, see Change Log) |
 | Date | 11 November 2026 |
 
 ---
@@ -246,7 +246,7 @@ Each requirement has an ID for traceability in design, testing and the final rep
 ### 9.1 Planned Page Map
 **Public:** `/` (Home) · `/rooms` · `/rooms/[slug]` · `/search` · `/about` · `/login` · `/register`
 **Customer:** `/booking/new` · `/booking/[id]/confirmation` · `/my-bookings` · `/my-bookings/[id]` · `/profile`
-**Admin:** `/admin` (Dashboard) · `/admin/bookings` · `/admin/bookings/[id]` · `/admin/room-types` · `/admin/rooms` · `/admin/users` · `/admin/reviews`
+**Admin:** `/admin` (Dashboard) · `/admin/bookings` · `/admin/bookings/[id]` · `/admin/room-types` (+ `/new`, `/[id]/edit`) · `/admin/rooms` (+ `/new`, `/[id]/edit`, `?type=` filter) · `/admin/users` · `/admin/reviews`
 
 ---
 
@@ -353,13 +353,13 @@ Each requirement has an ID for traceability in design, testing and the final rep
 | ODM | **Mongoose** | Schemas, validation, relationships (`ref`/`populate`) and indexes on top of MongoDB. |
 | Authentication | **JWT in an HTTP-only cookie** (`jose` for signing, `bcryptjs` for hashing) | Simple to understand and explain, stateless, works in Next.js middleware, and is secure against XSS token theft because JavaScript cannot read the cookie. |
 | Validation | **Zod** + **React Hook Form** | One schema validates both the form (client) and the API (server). |
-| Date handling | **date-fns** | Reliable night counting and date comparison. |
+| Date handling | Own helpers in `src/lib/dates.ts` | Stay dates are date-only values handled as `YYYY-MM-DD` and stored as UTC midnight; "today" is the hotel's date (Asia/Dhaka). A small, fully tested module avoids time-zone bugs that general date libraries invite. |
 | Fonts | **Geist** via the `geist` package (self-hosted) | No request to Google Fonts at runtime, so the app also works offline during a demo. |
 | Testing | **Vitest** + **mongodb-memory-server** | Fast automated tests that run against a real, throw-away MongoDB replica set, including transactions. |
 | Version Control | **Git + GitHub** | Track progress and collaborate. Also useful as evidence for the report. |
 | Deployment | **Vercel** (app) + **MongoDB Atlas** (database) | Both have free tiers and deploy directly from GitHub. |
 
-**Version policy:** We use the latest **stable** versions that are compatible with each other, locked by `package-lock.json`. We do not use beta or canary releases. Versions installed in Phase 1: Next.js 16.4.6, React 19.3.0, TypeScript 5.9, Tailwind CSS 4.3, shadcn CLI 4.23 (Radix "Nova" style), Mongoose 9.12, Zod 4.6, React Hook Form 7.91, jose 6.2, bcryptjs 3.0, date-fns 4.4, lucide-react 1.72, Vitest 5.1, MongoDB server 8.2 (local/test).
+**Version policy:** We use the latest **stable** versions that are compatible with each other, locked by `package-lock.json`. We do not use beta or canary releases. Versions installed in Phase 1: Next.js 16.4.6, React 19.3.0, TypeScript 5.9, Tailwind CSS 4.3, shadcn CLI 4.23 (Radix "Nova" style), Mongoose 9.12, Zod 4.6, React Hook Form 7.91, jose 6.2, bcryptjs 3.0, lucide-react 1.72, Vitest 5.1, MongoDB server 8.2 (local/test).
 
 **Database environments:**
 - **Development:** `npm run db:local` starts a local single-node MongoDB **replica set** on port 27018 (data kept in `.mongo-data/`). It needs no MongoDB installation. A replica set is required because booking uses transactions.
@@ -393,6 +393,59 @@ Authentication uses two layers of checks:
 - **Admin accounts:** created only through `npm run seed:admin` (reads `ADMIN_*` from `.env.local`). The script can be run more than once safely, and `--reset-password` sets the password again.
 
 ---
+
+### 11.2 Room Catalogue Design (implemented in Phase 3)
+
+- **No hard deletes.** Room types are *deactivated*, and rooms are set to `inactive` (FR-ADM-02/03/04). Past bookings will always point to a valid record. An inactive room type is hidden from customers (its URL returns 404), and its rooms can never be booked.
+- **Slugs:** the public URL comes from the name (`Deluxe Double Room` → `/rooms/deluxe-double-room`). Names that produce the same slug are rejected as duplicates. Renaming a room type changes its URL.
+- **Room numbers** are stored in upper case and must be unique, so `101a` and `101A` count as the same room.
+- **Images:** the admin enters `https://` URLs or site paths (`/…`), up to 6 per room type. A broken or missing image shows a styled placeholder. There is no file upload (see §13).
+- **Fresh data:** public room pages read the database at request time (`connection()` inside `<Suspense>`). An admin change, such as a price or deactivation, is visible to customers immediately. Builds also never need a database connection.
+- **Instant navigation (Next.js 16):** every page that reads the session or the database does so inside its own `<Suspense>` boundary. A loading skeleton then appears immediately, also when navigating between admin pages.
+- **Authorisation:** every admin Server Action calls `authorize("admin")` (database check) before validating input. Every admin page calls `requireRole("admin")`.
+- **Deferred to later phases (as planned):**
+  - Blocking deactivation or maintenance while future bookings exist (FR-ADM-04 booking check, §12.5): Phase 4, because bookings do not exist yet.
+  - Price and capacity filters (FR-ROOM-03, *Should Have*): Phase 6.
+  - Reviews on the details page (FR-ROOM-02 / FR-REV-03): Phase 6.
+
+### 11.3 Booking, Administration and Reviews (implemented in Phases 4–6)
+
+- **Booking transaction (§12.5)** is implemented in `src/services/booking.service.ts` and covered by concurrency tests: 12 simultaneous requests for 2 free rooms always produce exactly 2 bookings on different rooms.
+- **Dates:** `src/lib/dates.ts` handles date-only strings and the hotel's "today". The same Zod schema (`src/validations/booking.ts`) validates the search form, the booking form and the server: check-in not in the past and at most 365 days ahead, check-out after check-in, at most 30 nights, 1–10 guests.
+- **Booking flow:** search (`/search`) → review page (`/booking/new`, customers only; guests are sent to login and brought back with their dates) → confirmation (`/booking/[id]/confirmation`). The form sends only the room type, dates, guests and special request. The server re-checks everything and computes the price.
+- **Room assignment:** the first free room of the type in natural room-number order. Rooms with status `maintenance`/`inactive` are never assigned.
+- **Cancellation:**
+  - Customers can cancel pending/confirmed bookings until the day before check-in, using one atomic conditional update.
+  - Admins can cancel at any time.
+  - Cancelled bookings immediately stop blocking the room.
+- **FR-ADM-04 guards:**
+  - A room with upcoming active bookings cannot be set to maintenance/inactive or moved to another room type.
+  - A room type with upcoming active bookings cannot be deactivated.
+  - Both guards run in transactions that write the same Room documents as the booking transaction, so they cannot race a booking.
+- **Admin status rules:**
+  - pending → confirmed
+  - pending/confirmed → cancelled
+  - confirmed → completed, once check-in day has arrived
+- **Payment:** `unpaid`/`paid`, changed only through admin Server Actions (supervisor requirement 6). It cannot be changed on cancelled bookings.
+- **Dashboard statistics:**
+  - total and pending bookings
+  - today's check-ins and check-outs
+  - occupancy tonight (rooms with an active stay ÷ bookable rooms)
+  - revenue (paid, not cancelled)
+  - registered customers
+- **Users:** admins can block/unblock customers (never administrators or themselves). A blocked user's session ends on their next request.
+- **Reviews:**
+  - Only after a *completed* stay, one per booking.
+  - Reviewer shown as first name + last initial.
+  - Admins can hide/show or delete reviews.
+  - Room pages and room cards show the average of visible reviews.
+- **Profile (FR-AUTH-09):** `/profile` is available to every logged-in user. Name and phone can be edited (email is the login and is fixed). Changing the password requires the current password.
+- **Landing page:**
+  - Real photography served from the Unsplash CDN (`src/config/images.ts`).
+  - Entrance and scroll-reveal animations that respect `prefers-reduced-motion`.
+  - Content stays visible without JavaScript.
+  - Live featured rooms and guest reviews from the database.
+- **Demo data:** `npm run seed:demo` creates 6 room types, 23 rooms, 5 customers, 20 bookings in every status (dated relative to today) and 7 reviews.
 
 ## 12. Database Overview
 
@@ -597,8 +650,13 @@ The lock is **per room**, not per room type or global. Bookings for different ro
 |---|---|
 | 1. Setup | ✅ Completed and verified (11 Nov 2026) |
 | 2. Authentication | ✅ Completed and verified (11 Nov 2026): FR-AUTH-01 to FR-AUTH-08. FR-AUTH-09 (profile edit / password change) is a *Should Have* item and is scheduled for Phase 6. |
-| 3. Room Catalogue | ⏳ Next |
-| 4–7 | Not started |
+| 3. Room Catalogue | ✅ Completed and verified (11 Nov 2026): FR-ROOM-01, FR-ROOM-02 (without reviews), FR-ADM-02, FR-ADM-03, FR-ADM-04 (deactivate instead of delete), About page. FR-ROOM-03 filters and reviews: Phase 6. |
+| 4. Availability & Booking | ✅ Completed and verified: FR-AVAIL-01 … 06, FR-BOOK-01 … 10, FR-ADM-04 booking guards |
+| 5. Admin Management | ✅ Completed and verified: FR-ADM-01, FR-ADM-05 … 08 |
+| 6. Reviews & Polish | ✅ Completed and verified: FR-REV-01 … 04, FR-ADM-09, FR-ROOM-03, FR-AUTH-09, landing page |
+| 7. Testing & Documentation | ✅ 159 automated tests, demo seed script, `docs/TESTING.md` traceability matrix |
+
+*Could Have* items (§4.3) that were **not** built: printable confirmation page, dashboard charts, dark mode.
 
 ---
 
@@ -609,6 +667,8 @@ The lock is **per room**, not per room type or global. Bookings for different ro
 | 1.0 | 11 Nov 2026 | Initial plan, approved by supervisor. |
 | 1.1 | 11 Nov 2026 | Supervisor requirements added: transaction + room-level locking (new §12.5, `Room.lockVersion` field, FR-BOOK-05 updated); Cancelled bookings explicitly non-blocking (FR-AVAIL-05); new FR-AVAIL-06 (maintenance/inactive rooms never available); FR-BOOK-04 clarified; date validation on frontend **and** backend (FR-AVAIL-02); payment status admin-only (FR-ADM-07). Phase 1 decisions recorded: Next.js 16 (`proxy.ts` replaces `middleware.ts`, FR-AUTH-07), self-hosted Geist font, Vitest + mongodb-memory-server testing, `npm run db:local` local replica set. |
 | 1.2 | 11 Nov 2026 | Phase 2 completed. Added §11.1 Authentication Design. Phone numbers are Bangladeshi mobile numbers (`01XXXXXXXXX`). Password policy: 8–72 characters with a letter and a number. Login and registration pages redirect users who are already logged in. FR-AUTH-09 moved to Phase 6 (Should Have). Admin seed script added (`npm run seed:admin`). |
+| 1.3 | 11 Nov 2026 | Phase 3 completed. Added §11.2 Room Catalogue Design and admin sub-pages to the page map. Decisions: no hard deletes; slug from name; upper-case unique room numbers; image URLs with a placeholder fallback; public pages read live data at request time. FR-ROOM-03 (filters) is scheduled for Phase 6 (Should Have). The FR-ADM-04 future-booking check is scheduled for Phase 4. |
+| 1.4 | 11 Nov 2026 | Phases 4–7 completed. Added §11.3. `date-fns` replaced by the tested `src/lib/dates.ts` helpers (hotel time zone). Bookings open at most 365 days ahead. "Complete" is allowed from the check-in date. Payment cannot be changed on cancelled bookings. `/profile` is open to admins too. Landing page redesigned with real photography and motion. Demo seed script and `docs/TESTING.md` added. |
 
 ---
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, LayoutDashboard, LogOut, CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import { logoutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +37,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
         {accountLinks(user).map((link) => (
           <DropdownMenuItem key={link.href} asChild>
             <Link href={link.href}>
-              {user.role === "admin" ? <LayoutDashboard /> : <CalendarDays />}
+              {link.href === "/profile" ? <UserRound /> : user.role === "admin" ? <LayoutDashboard /> : <CalendarDays />}
               {link.title}
             </Link>
           </DropdownMenuItem>

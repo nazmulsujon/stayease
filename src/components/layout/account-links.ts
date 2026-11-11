@@ -3,8 +3,14 @@ import type { SessionUser } from "@/types/auth";
 /** Account-area links shown in the header menus, by role. */
 export function accountLinks(user: SessionUser) {
   return user.role === "admin"
-    ? [{ title: "Admin dashboard", href: "/admin" }]
-    : [{ title: "My bookings", href: "/my-bookings" }];
+    ? [
+        { title: "Admin dashboard", href: "/admin" },
+        { title: "My profile", href: "/profile" },
+      ]
+    : [
+        { title: "My bookings", href: "/my-bookings" },
+        { title: "My profile", href: "/profile" },
+      ];
 }
 
 export function initials(name: string) {

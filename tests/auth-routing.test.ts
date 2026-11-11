@@ -67,6 +67,12 @@ describe("decideRoute (proxy, FR-AUTH-07)", () => {
     expect(decideRoute("/my-bookings", "", customer)).toEqual({ action: "allow" });
   });
 
+  it("lets any logged-in user open their profile", () => {
+    expect(decideRoute("/profile", "", null)).toEqual({ action: "redirect", to: "/login?next=%2Fprofile" });
+    expect(decideRoute("/profile", "", customer)).toEqual({ action: "allow" });
+    expect(decideRoute("/profile", "", admin)).toEqual({ action: "allow" });
+  });
+
   it("keeps admins in the admin area", () => {
     expect(decideRoute("/admin", "", admin)).toEqual({ action: "allow" });
     expect(decideRoute("/my-bookings", "", admin)).toEqual({ action: "redirect", to: "/admin" });

@@ -50,9 +50,11 @@ export function SiteFooter() {
         </div>
       </Container>
       <div className="border-t">
-        <Container className="py-4 text-xs text-muted-foreground">
-          {siteConfig.name} — University project. Check-in from{" "}
-          {siteConfig.checkInTime}, check-out until {siteConfig.checkOutTime}.
+        <Container className="flex flex-col gap-1 py-4 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+          <span>© {siteConfig.fullName}. All rights reserved.</span>
+          <span>
+            Check-in from {siteConfig.checkInTime} · Check-out until {siteConfig.checkOutTime}
+          </span>
         </Container>
       </div>
     </footer>

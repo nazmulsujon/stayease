@@ -14,8 +14,8 @@ import {
   type LoginFormValues,
   type LoginInput,
 } from "@/validations/auth";
-import { applyServerFieldErrors } from "./apply-server-errors";
-import { FormAlert } from "./form-alert";
+import { applyServerFieldErrors } from "@/components/forms/apply-server-errors";
+import { FormAlert } from "@/components/forms/form-alert";
 import { PasswordInput } from "./password-input";
 
 export function LoginForm({ next }: { next?: string }) {

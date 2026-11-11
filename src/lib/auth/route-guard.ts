@@ -1,5 +1,6 @@
 import type { SessionPayload } from "./token";
 import {
+  ACCOUNT_PATHS,
   ADMIN_HOME,
   ADMIN_PATHS,
   CUSTOMER_HOME,
@@ -22,7 +23,8 @@ export function decideRoute(
 ): GuardDecision {
   const isAdminArea = matchesPrefix(pathname, ADMIN_PATHS);
   const isCustomerArea = matchesPrefix(pathname, CUSTOMER_PATHS);
-  if (!isAdminArea && !isCustomerArea) return { action: "allow" };
+  const isAccountArea = matchesPrefix(pathname, ACCOUNT_PATHS);
+  if (!isAdminArea && !isCustomerArea && !isAccountArea) return { action: "allow" };
 
   if (!session) {
     const next = encodeURIComponent(pathname + search);

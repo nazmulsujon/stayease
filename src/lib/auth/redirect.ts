@@ -21,7 +21,9 @@ export const CUSTOMER_HOME = "/";
 
 /** Path prefixes reserved for each role. */
 export const ADMIN_PATHS = ["/admin"];
-export const CUSTOMER_PATHS = ["/my-bookings", "/booking", "/profile"];
+export const CUSTOMER_PATHS = ["/my-bookings", "/booking"];
+/** Pages for any logged-in user, whatever the role. */
+export const ACCOUNT_PATHS = ["/profile"];
 
 export function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));

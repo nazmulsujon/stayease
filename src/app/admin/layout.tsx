@@ -7,12 +7,13 @@ import { Container } from "@/components/shared/container";
 import { Logo } from "@/components/shared/logo";
 import { PageSkeleton } from "@/components/shared/page-skeleton";
 import { UserMenu } from "@/components/layout/user-menu";
+import { AdminNav, AdminNavLinks } from "@/components/admin/admin-nav";
 import { requireRole } from "@/lib/auth/dal";
 
 /**
  * Admin area layout. Every page under /admin is rendered through
  * <AdminGuard>, which verifies the admin role against the database
- * (FR-AUTH-07). The full admin navigation is added in Phase 5.
+ * (FR-AUTH-07).
  */
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
@@ -34,6 +35,11 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
               <AdminUserMenu />
             </Suspense>
           </div>
+        </Container>
+        <Container>
+          <Suspense fallback={<AdminNavLinks />}>
+            <AdminNav />
+          </Suspense>
         </Container>
       </header>
       <main className="flex-1">

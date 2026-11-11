@@ -9,14 +9,11 @@ export function isActivePath(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-/** Desktop navigation links with active-page highlighting. */
-export function MainNav({ className }: { className?: string }) {
-  const pathname = usePathname();
-
+function NavLinks({ pathname, className }: { pathname?: string; className?: string }) {
   return (
     <nav aria-label="Main" className={cn("flex items-center gap-1", className)}>
       {mainNav.map((item) => {
-        const active = isActivePath(pathname, item.href);
+        const active = pathname !== undefined && isActivePath(pathname, item.href);
         return (
           <Link
             key={item.href}
@@ -33,4 +30,19 @@ export function MainNav({ className }: { className?: string }) {
       })}
     </nav>
   );
+}
+
+/**
+ * Desktop navigation links with active-page highlighting.
+ * Render inside <Suspense fallback={<MainNavFallback />}>: the current path is
+ * request data, so on dynamic routes it is only known at request time.
+ */
+export function MainNav({ className }: { className?: string }) {
+  const pathname = usePathname();
+  return <NavLinks pathname={pathname} className={className} />;
+}
+
+/** Same links without the active highlight, used in the static shell. */
+export function MainNavFallback({ className }: { className?: string }) {
+  return <NavLinks className={className} />;
 }

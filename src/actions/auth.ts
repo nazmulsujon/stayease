@@ -1,7 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { z } from "zod";
+import {
+  UNEXPECTED_FAILURE as UNEXPECTED,
+  validationFailure,
+  type ActionFailure,
+} from "@/lib/action-result";
 import { dbConnect } from "@/lib/db";
 import { createSession, deleteSession } from "@/lib/auth/session";
 import { postLoginRedirect } from "@/lib/auth/redirect";
@@ -14,29 +18,8 @@ import { loginSchema, registerSchema } from "@/validations/auth";
  * client-side validation is only for user experience, never trusted.
  */
 
-export type ActionResult = {
-  ok: false;
-  /** Message shown at the top of the form. */
-  formError?: string;
-  /** Per-field messages, keyed by field name. */
-  fieldErrors?: Record<string, string[] | undefined>;
-};
-
-function validationFailure(error: z.ZodError): ActionResult {
-  return {
-    ok: false,
-    formError: "Please correct the highlighted fields.",
-    fieldErrors: z.flattenError(error).fieldErrors as Record<string, string[] | undefined>,
-  };
-}
-
-const UNEXPECTED: ActionResult = {
-  ok: false,
-  formError: "Something went wrong on our side. Please try again in a moment.",
-};
-
 // FR-AUTH-01, FR-AUTH-02
-export async function registerAction(values: unknown, next?: string): Promise<ActionResult> {
+export async function registerAction(values: unknown, next?: string): Promise<ActionFailure> {
   const parsed = registerSchema.safeParse(values);
   if (!parsed.success) return validationFailure(parsed.error);
 
@@ -60,7 +43,7 @@ export async function registerAction(values: unknown, next?: string): Promise<Ac
 }
 
 // FR-AUTH-04, FR-AUTH-05, FR-AUTH-08
-export async function loginAction(values: unknown, next?: string): Promise<ActionResult> {
+export async function loginAction(values: unknown, next?: string): Promise<ActionFailure> {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) return validationFailure(parsed.error);
 

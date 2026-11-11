@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "db:check": "tsx --env-file-if-exists=.env.local scripts/check-db.ts",
     "db:local": "tsx scripts/local-db.ts",
-    "seed:admin": "tsx --env-file-if-exists=.env.local scripts/seed-admin.ts"
+    "seed:admin": "tsx --env-file-if-exists=.env.local scripts/seed-admin.ts",
+    "seed:demo": "tsx --env-file-if-exists=.env.local scripts/seed-demo.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.5",
@@ -28,6 +29,7 @@
     "next-themes": "^0.4.6",
     "radix-ui": "^1.8.1",
     "react": "19.3.0",
+    "react-day-picker": "^10.0.2",
     "react-dom": "19.3.0",
     "react-hook-form": "^7.91.0",
     "server-only": "^0.0.1",
