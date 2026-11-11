@@ -35,7 +35,6 @@ export const photos = {
   // Facilities
   restaurant: "1517248135467-4c7edcad34c4",
   dining: "1414235077428-338989a2e8c0",
-  spa: "1544161515-4ab6ce6db874",
   gym: "1534438327276-14e5300c3a48",
   pool: "1564501049412-61c2a3083791",
 } as const;

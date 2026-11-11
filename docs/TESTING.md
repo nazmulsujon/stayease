@@ -87,8 +87,9 @@ npm run dev                      # terminal 2
 
 1. **Home page:** hero, search, featured rooms with ratings, facilities, reviews, location. Resize to mobile.
 2. **Search:**
-   - Pick a check-in date in the past: an error is shown.
-   - Search valid dates: room types appear with "N rooms left" and total prices.
+   - Open the date picker. Past dates are disabled.
+   - Open `/search?checkIn=2020-01-01&checkOut=2020-01-02`: the server rejects the past date.
+   - Pick a check-in/check-out range and use the guest stepper. Room types appear with "N rooms left" and total prices.
 3. **Booking as a guest:**
    - Click **Book now**. You are sent to login.
    - Log in as a demo customer. You return to the summary with the same dates.

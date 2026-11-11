@@ -6,16 +6,15 @@ import {
   BadgeCheck,
   Car,
   Clock,
+  Coffee,
   Dumbbell,
   MapPin,
   Quote,
-  Sparkles,
   UtensilsCrossed,
   Waves,
   Wifi,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { StaySearchForm } from "@/components/booking/stay-search-form";
 import { Reveal } from "@/components/landing/reveal";
 import { Stars } from "@/components/reviews/stars";
@@ -43,7 +42,7 @@ const highlights = [
 const facilities = [
   { icon: UtensilsCrossed, title: "Saffron Restaurant", text: "All-day dining with Bengali favourites, grills and fresh juices.", photo: photos.restaurant },
   { icon: Waves, title: "Rooftop pool", text: "Unwind above the city with a view over Dhanmondi.", photo: photos.pool },
-  { icon: Sparkles, title: "Spa & wellness", text: "Massages and treatments to recover from a long journey.", photo: photos.spa },
+  { icon: Coffee, title: "Executive lounge", text: "A quiet space for meetings, work and evening tea with snacks.", photo: photos.armchairCorner },
   { icon: Dumbbell, title: "Fitness centre", text: "Modern equipment, open from 6 AM to 11 PM.", photo: photos.gym },
 ];
 
@@ -85,11 +84,12 @@ export default function HomePage() {
               See live availability and book in under a minute.
             </p>
           </div>
-          <Card className="animate-fade-up w-full max-w-4xl border-0 shadow-2xl" style={{ animationDelay: "380ms" }}>
-            <CardContent>
-              <StaySearchForm />
-            </CardContent>
-          </Card>
+          <div
+            className="animate-fade-up w-full max-w-4xl rounded-3xl bg-background/95 p-2 pb-0 shadow-2xl ring-1 ring-black/5 backdrop-blur"
+            style={{ animationDelay: "380ms" }}
+          >
+            <StaySearchForm />
+          </div>
         </Container>
       </section>
 

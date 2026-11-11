@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { CalendarX2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AvailabilityCard } from "@/components/booking/availability-card";
 import { StaySearchForm } from "@/components/booking/stay-search-form";
@@ -42,13 +41,7 @@ async function SearchResults({ searchParams }: { searchParams: SearchParams }) {
   const parsed = staySearchSchema().safeParse(raw);
   const hasQuery = Boolean(raw.checkIn || raw.checkOut);
 
-  const form = (
-    <Card>
-      <CardContent>
-        <StaySearchForm defaults={raw} />
-      </CardContent>
-    </Card>
-  );
+  const form = <StaySearchForm defaults={raw} />;
 
   if (!parsed.success) {
     return (
