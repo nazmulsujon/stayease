@@ -13,7 +13,7 @@ import { dbConnect } from "@/lib/db";
 import { listBookingsForUser } from "@/services/booking.service";
 import type { BookingDTO } from "@/types/booking";
 
-export const metadata: Metadata = { title: "My bookings" };
+export const metadata: Metadata = { title: "My bookings", robots: { index: false, follow: false } };
 
 /** FR-BOOK-08: the customer's bookings grouped as Upcoming, Past and Cancelled. */
 export default function MyBookingsPage() {

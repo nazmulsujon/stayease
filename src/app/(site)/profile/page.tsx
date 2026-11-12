@@ -11,7 +11,7 @@ import { dbConnect } from "@/lib/db";
 import { formatDate } from "@/lib/dates";
 import { getProfile } from "@/services/profile.service";
 
-export const metadata: Metadata = { title: "My profile" };
+export const metadata: Metadata = { title: "My profile", robots: { index: false, follow: false } };
 
 /** FR-AUTH-09: view and edit profile, change password. Any logged-in user. */
 export default function ProfilePage() {

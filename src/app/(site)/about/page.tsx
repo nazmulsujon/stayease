@@ -9,8 +9,9 @@ import { photos, unsplash } from "@/config/images";
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: `About ${siteConfig.fullName} and how to contact the hotel.`,
+  title: "About us & contact",
+  description: `About ${siteConfig.fullName}: our story, facilities, address, phone and email. Find us in Dhanmondi, Dhaka.`,
+  alternates: { canonical: "/about" },
 };
 
 const values = [

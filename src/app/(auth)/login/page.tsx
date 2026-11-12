@@ -13,7 +13,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { postLoginRedirect, safeRedirectPath } from "@/lib/auth/redirect";
 
-export const metadata: Metadata = { title: "Log in" };
+export const metadata: Metadata = { title: "Log in", robots: { index: false, follow: false } };
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (

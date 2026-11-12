@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { Stars } from "@/components/reviews/stars";
 
-export const metadata: Metadata = { title: "Booking details" };
+export const metadata: Metadata = { title: "Booking details", robots: { index: false, follow: false } };
 
 /** One booking of the logged-in customer, with cancellation (FR-BOOK-08, FR-BOOK-09). */
 export default function BookingDetailsPage({ params }: PageProps<"/my-bookings/[id]">) {

@@ -14,8 +14,10 @@ import { listActiveRoomTypes } from "@/services/catalogue.service";
 import { getRatingSummaries } from "@/services/review.service";
 
 export const metadata: Metadata = {
-  title: "Rooms",
-  description: "Browse all room types, prices and capacities.",
+  title: "Rooms & Suites in Dhanmondi, Dhaka",
+  description:
+    "Browse every room type at StayEase Hotel Dhanmondi — compare nightly prices, bed types, capacity and amenities, then book online.",
+  alternates: { canonical: "/rooms" },
 };
 
 const PRICE_OPTIONS = [4000, 6000, 8000, 12000];

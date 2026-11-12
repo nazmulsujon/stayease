@@ -8,11 +8,39 @@ import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — Hotel Room Reservation`,
+    default: `${siteConfig.name} — Boutique Hotel in Dhanmondi, Dhaka | Book Online`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.fullName }],
+  creator: siteConfig.fullName,
+  publisher: siteConfig.fullName,
+  category: "travel",
+  formatDetection: { telephone: true, email: false, address: false },
+  // Each page resolves "./" to its own URL, so query strings are never indexed.
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    locale: "en_BD",
+    url: "./",
+    title: `${siteConfig.name} — Boutique Hotel in Dhanmondi, Dhaka`,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — Boutique Hotel in Dhanmondi, Dhaka`,
+    description: siteConfig.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
 };
 
 export const viewport: Viewport = {

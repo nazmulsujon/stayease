@@ -13,6 +13,8 @@ import { StaySearchForm } from "@/components/booking/stay-search-form";
 import { siteConfig } from "@/config/site";
 import { dbConnect } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
+import { snippet } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getActiveRoomTypeBySlug } from "@/services/catalogue.service";
 import { getRoomTypeReviews } from "@/services/review.service";
 import { ReviewList } from "@/components/reviews/review-list";
@@ -23,11 +25,22 @@ export async function generateMetadata({ params }: PageProps<"/rooms/[slug]">): 
   await connection();
   await dbConnect();
   const roomType = await getActiveRoomTypeBySlug(slug);
-  return roomType
-    ? { title: roomType.name, description: roomType.description.slice(0, 160) }
-    : { title: "Room not found" };
-}
+  if (!roomType) return { title: "Room not found", robots: { index: false, follow: false } };
 
+  const title = `${roomType.name} — ${roomType.bedType} room in Dhanmondi, Dhaka`;
+  const description = snippet(
+    `${roomType.description} From ${formatCurrency(roomType.pricePerNight)} per night, sleeps ${roomType.capacity}.`,
+  );
+  const path = `/rooms/${roomType.slug}`;
+  const images = roomType.images.slice(0, 3).map((url) => ({ url, alt: roomType.name }));
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "website", url: path, title, description, ...(images.length ? { images } : {}) },
+    twitter: { card: "summary_large_image", title, description, ...(images.length ? { images: [images[0].url] } : {}) },
+  };
+}
 /** FR-ROOM-02: room type details. */
 export default function RoomDetailsPage({ params }: PageProps<"/rooms/[slug]">) {
   return (
@@ -55,9 +68,40 @@ async function RoomDetails({ params }: { params: PageProps<"/rooms/[slug]">["par
   const { reviews, summary } = await getRoomTypeReviews(roomType.id);
 
   const [cover, ...gallery] = roomType.images;
+  const pageUrl = `${siteConfig.url}/rooms/${roomType.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HotelRoom",
+    name: roomType.name,
+    description: roomType.description,
+    url: pageUrl,
+    image: roomType.images,
+    bed: { "@type": "BedDetails", typeOfBed: roomType.bedType },
+    occupancy: { "@type": "QuantitativeValue", maxValue: roomType.capacity },
+    ...(roomType.sizeSqft
+      ? { floorSize: { "@type": "QuantitativeValue", value: roomType.sizeSqft, unitCode: "FTK" } }
+      : {}),
+    amenityFeature: roomType.amenities.map((name) => ({
+      "@type": "LocationFeatureSpecification",
+      name,
+      value: true,
+    })),
+    offers: { "@type": "Offer", price: roomType.pricePerNight, priceCurrency: siteConfig.currency, url: pageUrl },
+    containedInPlace: { "@type": "Hotel", "@id": `${siteConfig.url}/#hotel`, name: siteConfig.fullName },
+    ...(summary.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: summary.average,
+            reviewCount: summary.count,
+          },
+        }
+      : {}),
+  };
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_340px]">
+      <JsonLd data={jsonLd} />
       <div className="space-y-8">
         <div className="space-y-3">
           <RoomImage

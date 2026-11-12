@@ -18,7 +18,7 @@ import { dbConnect } from "@/lib/db";
 import { getRoomTypeAvailability } from "@/services/availability.service";
 import { createBookingSchema } from "@/validations/booking";
 
-export const metadata: Metadata = { title: "Review your booking" };
+export const metadata: Metadata = { title: "Review your booking", robots: { index: false, follow: false } };
 
 type SearchParams = PageProps<"/booking/new">["searchParams"];
 

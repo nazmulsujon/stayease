@@ -13,7 +13,7 @@ import { RegisterForm } from "@/components/auth/register-form";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { postLoginRedirect, safeRedirectPath } from "@/lib/auth/redirect";
 
-export const metadata: Metadata = { title: "Create account" };
+export const metadata: Metadata = { title: "Create account", robots: { index: false, follow: false } };
 
 export default function RegisterPage({ searchParams }: PageProps<"/register">) {
   return (

@@ -4,6 +4,20 @@
  */
 export const siteConfig = {
   name: "StayEase",
+  /**
+   * Public origin used for canonical URLs, Open Graph, sitemap and robots.
+   * Set NEXT_PUBLIC_SITE_URL in production (e.g. https://stayease.com).
+   */
+  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, ""),
+  keywords: [
+    "hotel in Dhanmondi",
+    "Dhaka hotel booking",
+    "boutique hotel Dhaka",
+    "book hotel room online",
+    "Dhanmondi accommodation",
+    "StayEase",
+  ],
+  geo: { lat: 23.7465, lon: 90.376 },
   fullName: "StayEase Hotel Dhanmondi",
   tagline: "Comfortable stays, booked in minutes.",
   description:

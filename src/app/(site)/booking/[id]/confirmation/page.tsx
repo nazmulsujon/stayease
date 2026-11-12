@@ -11,7 +11,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { dbConnect } from "@/lib/db";
 import { getBookingForUser } from "@/services/booking.service";
 
-export const metadata: Metadata = { title: "Booking received" };
+export const metadata: Metadata = { title: "Booking received", robots: { index: false, follow: false } };
 
 /** Shown right after a successful booking (FR-BOOK-06). */
 export default function BookingConfirmationPage({ params }: PageProps<"/booking/[id]/confirmation">) {

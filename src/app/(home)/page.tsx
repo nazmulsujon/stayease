@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import {
@@ -30,6 +31,8 @@ import { RoomImage } from "@/components/rooms/room-image";
 import { Container } from "@/components/shared/container";
 import { photos, unsplash } from "@/config/images";
 import { siteConfig } from "@/config/site";
+import { JsonLd } from "@/components/seo/json-ld";
+import { hotelJsonLd } from "@/lib/seo";
 import { dbConnect } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -69,9 +72,17 @@ const MAP = { lat: 23.7465, lon: 90.376 };
 const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${MAP.lon - 0.012}%2C${MAP.lat - 0.007}%2C${MAP.lon + 0.012}%2C${MAP.lat + 0.007}&layer=mapnik&marker=${MAP.lat}%2C${MAP.lon}`;
 const directionsHref = `https://www.openstreetmap.org/?mlat=${MAP.lat}&mlon=${MAP.lon}#map=16/${MAP.lat}/${MAP.lon}`;
 
+export const metadata: Metadata = {
+  title: { absolute: `${siteConfig.name} — Boutique Hotel in Dhanmondi, Dhaka | Book Online` },
+  description:
+    "Stay at StayEase, a boutique city hotel in Dhanmondi, Dhaka. Compare rooms, check live availability and book instantly with no hidden fees.",
+  alternates: { canonical: "/" },
+};
+
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={hotelJsonLd()} />
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-neutral-950 text-white">
         <div className="absolute inset-0 -z-10" aria-hidden>

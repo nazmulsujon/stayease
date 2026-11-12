@@ -9,6 +9,12 @@ import { PageSkeleton } from "@/components/shared/page-skeleton";
 import { UserMenu } from "@/components/layout/user-menu";
 import { AdminNav, AdminNavLinks } from "@/components/admin/admin-nav";
 import { requireRole } from "@/lib/auth/dal";
+import type { Metadata } from "next";
+
+/** The admin area is private: never index or follow anything in it. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
 
 /**
  * Admin area layout. Every page under /admin is rendered through

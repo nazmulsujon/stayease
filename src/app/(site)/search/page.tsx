@@ -14,7 +14,11 @@ import { formatDateRange } from "@/lib/dates";
 import { searchAvailability } from "@/services/availability.service";
 import { staySearchSchema } from "@/validations/booking";
 
-export const metadata: Metadata = { title: "Check availability" };
+export const metadata: Metadata = {
+  title: "Check room availability",
+  description: "Search live availability for your dates and book a room at StayEase Hotel Dhanmondi.",
+  robots: { index: false, follow: true },
+};
 
 type SearchParams = PageProps<"/search">["searchParams"];
 
