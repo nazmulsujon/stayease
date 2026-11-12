@@ -361,3 +361,9 @@ export async function listRoomTypeOptions(): Promise<{ id: string; name: string;
   const docs = await RoomType.find().select("name isActive").sort({ name: 1 }).lean();
   return docs.map((d) => ({ id: d._id.toString(), name: d.name, isActive: d.isActive }));
 }
+
+/** Number of rooms that can currently be booked (available rooms of active types). */
+export async function countBookableRooms(): Promise<number> {
+  const activeTypes = await RoomType.find({ isActive: true }).distinct("_id");
+  return Room.countDocuments({ roomType: { $in: activeTypes }, status: "available" });
+}

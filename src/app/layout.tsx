@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 // so the app also works offline, e.g. during a project demo.
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import "@fontsource-variable/fraunces"; // serif display font for headings (self-hosted)
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
